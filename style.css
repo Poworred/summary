@@ -56,8 +56,58 @@ body::before {
 @media (max-width: 768px) {
     .container {
         flex-direction: column;
-        padding: 1rem;
+        padding: 0.5rem;
         height: auto;
+    }
+
+    /* Compact Card padding on mobile */
+    .card {
+        padding: 1rem;
+    }
+
+    /* Adjust Grid Layout */
+    .leaderboard-header,
+    .player-row {
+        grid-template-columns: 40px 1fr 60px 0 !important;
+        gap: 0.5rem;
+        padding: 0.75rem 0.5rem;
+    }
+
+    /* Text Truncation for Name */
+    .player-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 1rem;
+    }
+
+    /* Centering Rank and Score */
+    .player-rank {
+        justify-self: center;
+        text-align: center;
+        font-size: 1.2rem;
+    }
+
+    .player-score {
+        justify-self: center;
+        text-align: center;
+        font-size: 1.1rem;
+    }
+
+    /* Hide Action Button Column */
+    .action-btn {
+        display: none;
+    }
+
+    /* Header Alignment Match */
+    .leaderboard-header>div:nth-child(1),
+    .leaderboard-header>div:nth-child(3) {
+        text-align: center !important;
+    }
+
+    /* Hide Header Action Column */
+    .leaderboard-header>div:nth-child(4) {
+        display: none;
     }
 }
 
