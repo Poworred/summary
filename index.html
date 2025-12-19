@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>团建积分榜</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Sidebar Controls -->
+        <aside class="controls-panel">
+            <div class="card">
+                <h1>团建积分榜</h1>
+                <p style="color: var(--text-secondary); margin-bottom: 2rem;">实时追踪团队打卡进度</p>
+
+                <button class="btn" onclick="openModal('addPlayerModal')">
+                    + 添加参与者
+                </button>
+                <button class="btn btn-secondary" onclick="openModal('addTargetModal')">
+                    O 添加打卡目标
+                </button>
+            </div>
+
+            <div class="card">
+                <h2>当前目标点位</h2>
+                <div id="targetListPreview" style="color: var(--text-secondary); font-size: 0.9rem;">
+                    <!-- Populated by JS -->
+                    <p>暂无目标，请添加</p>
+                </div>
+            </div>
+
+            <div style="flex: 1;"></div>
+
+            <button class="btn btn-danger" onclick="resetGame()">
+                重置所有数据
+            </button>
+        </aside>
+
+        <!-- Main Leaderboard -->
+        <main class="leaderboard-panel card">
+            <div class="leaderboard-header">
+                <div>排名</div>
+                <div>姓名</div>
+                <div style="text-align: right">积分</div>
+                <div style="text-align: center">打卡</div>
+            </div>
+            <div id="leaderboardList" class="leaderboard-list">
+                <!-- Rows populated by JS -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- Add Player Modal -->
+    <div id="addPlayerModal" class="modal-overlay">
+        <div class="modal">
+            <h2>添加新参与者</h2>
+            <div class="form-group">
+                <label>姓名</label>
+                <input type="text" id="newPlayerName" class="form-input" placeholder="输入姓名">
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-secondary" onclick="closeModal('addPlayerModal')">取消</button>
+                <button class="btn" onclick="addPlayer()">确认添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Target Modal -->
+    <div id="addTargetModal" class="modal-overlay">
+        <div class="modal">
+            <h2>添加打卡目标</h2>
+            <div class="form-group">
+                <label>目标名称 (如：寻找地标A)</label>
+                <input type="text" id="newTargetName" class="form-input" placeholder="目标名称">
+            </div>
+            <div class="form-group">
+                <label>最低打卡人数 (即积分值)</label>
+                <input type="number" id="newTargetScore" class="form-input" min="1" value="1">
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-secondary" onclick="closeModal('addTargetModal')">取消</button>
+                <button class="btn" onclick="addTarget()">确认添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Score Modal -->
+    <div id="addScoreModal" class="modal-overlay">
+        <div class="modal">
+            <h2>选择已完成的目标</h2>
+            <p id="currentScoringPlayer" style="color: var(--accent-color); margin-bottom: 1rem;"></p>
+
+            <div id="scoreTargetList" class="targets-grid">
+                <!-- Targets buttons -->
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button class="btn btn-secondary" onclick="closeModal('addScoreModal')">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">操作成功</div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
