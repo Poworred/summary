@@ -26,9 +26,15 @@ function loadData() {
                 { id: 3, name: '神秘宝箱', score: 8 }
             ];
             players = [
-                { id: 1, name: '张三', score: 0, visited: [] },
-                { id: 2, name: '李四', score: 0, visited: [] }
-            ];
+                "赖心怡", "吴润羲", "张瑶", "万诗琴", "李梓睿", "俞丽君", "甘宇强", "赵文彤", "曾嘉琪",
+                "王文洋", "邱荣毅", "杨许玮", "周之杰", "游英健", "陈诗棋", "马昀隆", "卢艺文", "李佳龙", "张科宇",
+                "蔡一民", "毛思涵", "蔡睿喆", "石祥鹏", "郑福祥", "莫天泽", "杨美铃", "陈可珍", "张润诚"
+            ].map((name, index) => ({
+                id: Date.now() + index,
+                name: name,
+                score: 0,
+                visited: []
+            }));
         }
     }
 }
@@ -104,7 +110,7 @@ function addPlayer() {
         score: 0,
         visited: []
     });
-    
+
     input.value = '';
     closeModal('addPlayerModal');
     saveData();
@@ -114,7 +120,7 @@ function addPlayer() {
 function addTarget() {
     const nameInput = document.getElementById('newTargetName');
     const scoreInput = document.getElementById('newTargetScore');
-    
+
     const name = nameInput.value.trim();
     const score = parseInt(scoreInput.value);
 
@@ -142,7 +148,7 @@ function openScoreModal(pid) {
     if (!player) return;
 
     document.getElementById('currentScoringPlayer').innerText = `正在为 [${player.name}] 打卡`;
-    
+
     const grid = document.getElementById('scoreTargetList');
     grid.innerHTML = '';
 
@@ -171,13 +177,13 @@ function openScoreModal(pid) {
 function confirmScore(tid) {
     const player = players.find(p => p.id === currentPlayerId);
     const target = targets.find(t => t.id === tid);
-    
+
     if (player && target) {
         if (player.visited.includes(tid)) return; // Double check
 
         player.score += target.score;
         player.visited.push(tid);
-        
+
         saveData();
         closeModal('addScoreModal');
         showToast(`${player.name} 打卡成功！+${target.score}分`);
@@ -218,7 +224,7 @@ function escapeHtml(text) {
 }
 
 // Close modal on outside click
-window.onclick = function(event) {
+window.onclick = function (event) {
     if (event.target.classList.contains('modal-overlay')) {
         event.target.classList.remove('active');
     }
