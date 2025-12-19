@@ -53,7 +53,7 @@ async function pushToCloud() {
 
 async function initDefaultData() {
     const defaultPlayers = [
-        "赖心怡", "吴润羲", "张瑶", "万诗琴", "李梓睿", "俞丽君", "甘宇强", "赵文彤", "曾嘉琪",
+        "赖心怡", "矣润羲", "张瑶", "万诗琴", "李梓睿", "俞丽君", "甘宇强", "赵文彤", "曾嘉琪",
         "王文洋", "邱荣毅", "杨许玮", "周之杰", "游英健", "陈诗棋", "马昀隆", "卢艺文", "李佳龙", "张科宇",
         "蔡一民", "毛思涵", "蔡睿喆", "石祥鹏", "郑福祥", "莫天泽", "杨美铃", "陈可珍", "张润诚"
     ].map((name, index) => ({
@@ -64,7 +64,7 @@ async function initDefaultData() {
     }));
 
     const defaultTargets = [
-        { id: 1, name: '示例目标: 入口打卡', score: 5 }
+        { id: 1, name: '入口打卡', score: 5 }
     ];
 
     await setDoc(GAME_DOC_REF, { players: defaultPlayers, targets: defaultTargets });
