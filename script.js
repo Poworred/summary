@@ -72,6 +72,7 @@ async function initDefaultData() {
 
 // 交互逻辑
 window.addPlayer = function () {
+    if (!isAdmin) return showToast("请先登录管理员");
     const name = document.getElementById('newPlayerName').value.trim();
     if (!name) return showToast('请输入姓名');
     players.push({ id: Date.now(), name, score: 0, visited: [] });
@@ -81,6 +82,7 @@ window.addPlayer = function () {
 };
 
 window.addTarget = function () {
+    if (!isAdmin) return showToast("请先登录管理员");
     const name = document.getElementById('newTargetName').value.trim();
     const score = parseInt(document.getElementById('newTargetScore').value);
     if (!name) return showToast('请输入名称');
@@ -107,6 +109,7 @@ window.confirmScore = function (tid) {
 };
 
 window.resetGame = function () {
+    if (!isAdmin) return showToast("请先登录管理员");
     if (confirm('确定要清空所有数据吗？')) {
         players = [];
         targets = [];
@@ -117,9 +120,10 @@ window.resetGame = function () {
 
 window.adminLogin = function () {
     const pwd = prompt("请输入管理员密码：");
-    if (pwd === "666") {
+    if (pwd === "admin888") {
         isAdmin = true;
         document.getElementById('adminControls').style.display = 'block';
+        document.getElementById('adminControlsFooter').style.display = 'block';
         document.getElementById('guestMessage').style.display = 'none';
         document.getElementById('adminLoginBtn').style.display = 'none';
         showToast("管理员模式已开启");

@@ -17,12 +17,18 @@
                 <h1>团建积分榜</h1>
                 <p style="color: var(--text-secondary); margin-bottom: 2rem;">实时追踪团队打卡进度</p>
 
-                <button class="btn" onclick="openModal('addPlayerModal')">
-                    + 添加参与者
-                </button>
-                <button class="btn btn-secondary" onclick="openModal('addTargetModal')">
-                    O 添加打卡目标
-                </button>
+                <div id="adminControls" style="display: none;">
+                    <button class="btn" onclick="openModal('addPlayerModal')">
+                        + 添加参与者
+                    </button>
+                    <button class="btn btn-secondary" onclick="openModal('addTargetModal')">
+                        O 添加打卡目标
+                    </button>
+                </div>
+
+                <div id="guestMessage" style="color: var(--text-secondary); margin-top: 1rem; font-size: 0.9rem;">
+                    👋 欢迎！您处于访客模式，仅可查看排行榜。
+                </div>
             </div>
 
             <div class="card">
@@ -35,8 +41,14 @@
 
             <div style="flex: 1;"></div>
 
-            <button class="btn btn-danger" onclick="resetGame()">
-                重置所有数据
+            <div id="adminControlsFooter" style="display: none;">
+                <button class="btn btn-danger" onclick="resetGame()">
+                    重置所有数据
+                </button>
+            </div>
+
+            <button id="adminLoginBtn" class="btn btn-secondary" onclick="adminLogin()" style="margin-top: 1rem;">
+                🔑 管理员登录
             </button>
         </aside>
 
