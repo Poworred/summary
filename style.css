@@ -480,14 +480,17 @@ h2 {
 @media (max-width: 768px) {
     .container {
         flex-direction: column;
-        /* RESTORED: Top-down layout on mobile */
+        /* Fix: Restore top-down layout */
+        align-items: center;
         padding: 10px;
         height: auto;
     }
 
-    /* Disable scale effect on mobile to prevent clipping/overflow issues */
-    .player-row:hover {
-        transform: none !important;
+    /* Fix: Ensure hovered name doesn't cover the score/action of the row */
+    .player-row:hover .player-name {
+        z-index: 3;
+        /* Lift name above border if needed */
+        position: relative;
     }
 
     .controls-panel,
