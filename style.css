@@ -60,28 +60,35 @@ body::before {
         height: auto;
     }
 
+    /* Fix: Allow controls panel to take full width on mobile */
+    .controls-panel {
+        max-width: none;
+        width: 100%;
+    }
+
     /* Compact Card padding on mobile */
     .card {
         padding: 1rem;
     }
 
-    /* Adjust Grid Layout */
+    /* Adjust Grid Layout: 3 Columns, hidden 4th */
     .leaderboard-header,
     .player-row {
-        grid-template-columns: 40px 1fr 60px 0 !important;
+        grid-template-columns: 50px 1fr 60px !important;
         gap: 0.5rem;
         padding: 0.75rem 0.5rem;
     }
 
-    /* Text Truncation for Name */
+    /* Text Truncation for Name - Strict Rules */
     .player-name {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         font-size: 1rem;
+        max-width: 100%;
     }
 
-    /* Centering Rank and Score */
+    /* Centering Rank and Score strictly */
     .player-rank {
         justify-self: center;
         text-align: center;
@@ -94,20 +101,21 @@ body::before {
         font-size: 1.1rem;
     }
 
-    /* Hide Action Button Column */
+    /* Hide Action Button Column Completely */
+    .player-row>div:nth-child(4),
+    .leaderboard-header>div:nth-child(4) {
+        display: none !important;
+    }
+
     .action-btn {
         display: none;
     }
 
-    /* Header Alignment Match */
+    /* Header Alignment - Force Center for Rank/Score */
     .leaderboard-header>div:nth-child(1),
     .leaderboard-header>div:nth-child(3) {
         text-align: center !important;
-    }
-
-    /* Hide Header Action Column */
-    .leaderboard-header>div:nth-child(4) {
-        display: none;
+        justify-self: center;
     }
 }
 
