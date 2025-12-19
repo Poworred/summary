@@ -442,11 +442,20 @@ h2 {
     transform: translateY(-2px);
 }
 
+.target-chip.selected:hover {
+    background: var(--danger-color);
+    color: white;
+    cursor: pointer !important;
+    /* Force to show it's clickable */
+}
+
 .target-chip.selected {
     background: var(--accent-color);
     color: #0f172a;
     font-weight: 800;
     box-shadow: 0 4px 15px var(--accent-glow);
+    cursor: pointer;
+    /* Ensure it's not not-allowed */
 }
 
 .target-points {

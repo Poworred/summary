@@ -167,12 +167,30 @@ window.renderLeaderboard = function () {
     });
 };
 
+window.deleteTarget = function (id) {
+    if (!isAdmin) return showToast("请先登录管理员");
+    const tIndex = targets.findIndex(t => t.id === id);
+    if (tIndex > -1) {
+        if (confirm(`确定要彻底删除 [${targets[tIndex].name}] 吗？\n警告：这不会影响已打卡该目标的玩家及其分数。`)) {
+            targets.splice(tIndex, 1);
+            pushToCloud();
+            showToast("目标已删除");
+        }
+    }
+}
+
 function renderSidebarTargets() {
     const div = document.getElementById('targetListPreview');
     if (!targets.length) { div.innerHTML = '<p>暂无目标</p>'; return; }
     div.innerHTML = targets.map(t => `
-        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05)">
-            <span>${escapeHtml(t.name)}</span><span style="color:#38bdf8;font-weight:bold;">${t.score}分</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05)">
+            <div>
+                <span>${escapeHtml(t.name)}</span>
+            </div>
+            <div style="display:flex; align-items:center;">
+                <span style="color:#38bdf8;font-weight:bold;margin-right:8px;">${t.score}分</span>
+                ${isAdmin ? `<span onclick="deleteTarget(${t.id})" style="color:#f87171;cursor:pointer;font-weight:bold;margin-left:4px;" title="删除">×</span>` : ''}
+            </div>
         </div>`).join('');
 }
 
@@ -186,6 +204,37 @@ window.showToast = (msg) => {
 };
 function escapeHtml(text) { return document.createElement('div').appendChild(document.createTextNode(text)).parentNode.innerHTML; }
 
+// 修改后的 confirmScore 变成 toggleScore，逻辑更智能
+window.toggleScore = function (tid) {
+    if (!isAdmin) return showToast("请先登录管理员");
+    const player = players.find(p => p.id === currentPlayerId);
+    const target = targets.find(t => t.id === tid);
+
+    if (player && target) {
+        if (!player.visited) player.visited = [];
+        const visitedIndex = player.visited.indexOf(tid);
+
+        if (visitedIndex > -1) {
+            // 已打卡 -> 取消打卡（扣分）
+            if (confirm(`确定要取消 [${target.name}] 的打卡吗？\n将扣除 ${target.score} 分。`)) {
+                player.score -= target.score;
+                player.visited.splice(visitedIndex, 1);
+                showToast("已取消打卡");
+            } else {
+                return; // 用户取消操作
+            }
+        } else {
+            // 未打卡 -> 进行打卡（加分）
+            player.score += target.score;
+            player.visited.push(tid);
+            showToast("打卡成功！");
+        }
+
+        closeModal('addScoreModal');
+        pushToCloud();
+    }
+};
+
 window.openScoreModal = function (pid) {
     if (!isAdmin) return;
     currentPlayerId = pid;
@@ -198,11 +247,15 @@ window.openScoreModal = function (pid) {
         const isVisited = player.visited && player.visited.includes(t.id);
         const btn = document.createElement('div');
         btn.className = `target-chip ${isVisited ? 'selected' : ''}`;
+
+        // 绑定点击事件，无论是打卡还是取消打卡
+        btn.onclick = () => toggleScore(t.id);
+
         if (isVisited) {
-            btn.style.opacity = '0.5'; btn.style.cursor = 'not-allowed';
-            btn.innerHTML = `${t.name} <div class="target-points">已完成</div>`;
+            // 已完成状态：允许点击取消
+            btn.innerHTML = `${t.name} <div class="target-points">已完成 (点击取消)</div>`;
         } else {
-            btn.onclick = () => confirmScore(t.id);
+            // 未完成状态：点击打卡
             btn.innerHTML = `${t.name} <div class="target-points">+${t.score} 分</div>`;
         }
         grid.appendChild(btn);
