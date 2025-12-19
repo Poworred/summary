@@ -38,6 +38,7 @@ body {
     min-height: 100vh;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    -webkit-overflow-scrolling: touch;
     letter-spacing: -0.01em;
     line-height: normal;
 }
@@ -65,7 +66,7 @@ body::before {
     padding: 40px;
     display: flex;
     gap: 40px;
-    height: 100vh;
+    min-height: 100vh;
     align-items: flex-start;
 }
 
@@ -217,24 +218,8 @@ h2 {
 
 .leaderboard-list {
     flex: 1;
-    overflow-y: auto;
+    /* Removed overflow-y: auto to allow body scroll */
     padding: 0;
-    /* Custom Scrollbar */
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
-}
-
-.leaderboard-list::-webkit-scrollbar {
-    width: 6px;
-}
-
-.leaderboard-list::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.leaderboard-list::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
 }
 
 /* Light Minimal rows */
@@ -325,9 +310,11 @@ h2 {
 /* Mobile Tweaks for layout */
 @media (max-width: 768px) {
     .container {
-        flex-direction: column;
+        flex-direction: column-reverse;
+        /* Stack Controls at bottom */
         padding: 16px;
         gap: 16px;
+        height: auto;
     }
 
     .card {
@@ -335,10 +322,21 @@ h2 {
         border-radius: 20px;
     }
 
-    .controls-panel,
+    .controls-panel {
+        /* Cancel sticky on mobile if desired, or keep it. 
+           If at bottom, sticky top doesn't make sense unless we want it sticky at bottom.
+           For now, let's make it static so it just scrolls into view at the bottom.
+        */
+        position: static;
+        width: 100% !important;
+        max-width: none;
+    }
+
     .leaderboard-panel {
         width: 100% !important;
         max-width: none;
+        overflow: visible;
+        /* Ensure content flows */
     }
 
     .leaderboard-header,
