@@ -1,179 +1,201 @@
-// State
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// 我的配置信息
+const firebaseConfig = {
+    apiKey: "AIzaSyAqxa_wtFwpDhavXZDowqHY5_9oqzX_EZo",
+    authDomain: "summary-7fa47.firebaseapp.com",
+    projectId: "summary-7fa47",
+    storageBucket: "summary-7fa47.firebasestorage.app",
+    messagingSenderId: "1006366612870",
+    appId: "1:1006366612870:web:55dd0a3b0a7d88dbaa2007",
+    measurementId: "G-7DRKNG2JH3"
+};
+
+// 初始化
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const GAME_DOC_REF = doc(db, "events", "2024_teambuilding");
+
+// 状态管理
 let players = [];
 let targets = [];
+let isAdmin = false;
+let currentPlayerId = null;
 
-// Constants
-const STORAGE_KEY = 'team_building_app_v1';
-
-// Init
-// Init
-document.addEventListener('DOMContentLoaded', () => {
-    loadData();
+// 实时监听
+onSnapshot(GAME_DOC_REF, (docSnap) => {
+    if (docSnap.exists()) {
+        const data = docSnap.data();
+        players = data.players || [];
+        targets = data.targets || [];
+        console.log("数据同步成功");
+    } else {
+        console.log("初始化新数据...");
+        initDefaultData();
+    }
     renderAll();
-
-    document.getElementById('searchInput').addEventListener('input', renderLeaderboard);
 });
 
-function loadData() {
-    const data = localStorage.getItem(STORAGE_KEY);
-    if (data) {
-        const parsed = JSON.parse(data);
-        players = parsed.players || [];
-        targets = parsed.targets || [];
-    } else {
-        // Initial Demo Data (optional, remove if unwanted, but good for first impresssion)
-        if (players.length === 0 && targets.length === 0) {
-            targets = [
-                { id: 1, name: '入口雕塑', score: 3 },
-                { id: 2, name: '山顶凉亭', score: 5 },
-                { id: 3, name: '神秘宝箱', score: 8 }
-            ];
-            players = [
-                "赖心怡", "吴润羲", "张瑶", "万诗琴", "李梓睿", "俞丽君", "甘宇强", "赵文彤", "曾嘉琪",
-                "王文洋", "邱荣毅", "杨许玮", "周之杰", "游英健", "陈诗棋", "马昀隆", "卢艺文", "李佳龙", "张科宇",
-                "蔡一民", "毛思涵", "蔡睿喆", "石祥鹏", "郑福祥", "莫天泽", "杨美铃", "陈可珍", "张润诚"
-            ].map((name, index) => ({
-                id: Date.now() + index,
-                name: name,
-                score: 0,
-                visited: []
-            }));
-        }
+// 数据同步函数
+async function pushToCloud() {
+    if (!isAdmin) {
+        showToast("只有管理员可以修改数据！");
+        return;
+    }
+    try {
+        await setDoc(GAME_DOC_REF, { players, targets });
+    } catch (e) {
+        console.error(e);
+        showToast("同步失败: " + e.message);
     }
 }
 
-function saveData() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ players, targets }));
-    renderAll();
+async function initDefaultData() {
+    const defaultPlayers = [
+        "赖心怡", "吴润羲", "张瑶", "万诗琴", "李梓睿", "俞丽君", "甘宇强", "赵文彤", "曾嘉琪",
+        "王文洋", "邱荣毅", "杨许玮", "周之杰", "游英健", "陈诗棋", "马昀隆", "卢艺文", "李佳龙", "张科宇",
+        "蔡一民", "毛思涵", "蔡睿喆", "石祥鹏", "郑福祥", "莫天泽", "杨美铃", "陈可珍", "张润诚"
+    ].map((name, index) => ({
+        id: Date.now() + index,
+        name: name,
+        score: 0,
+        visited: []
+    }));
+
+    const defaultTargets = [
+        { id: 1, name: '示例目标: 入口打卡', score: 5 }
+    ];
+
+    await setDoc(GAME_DOC_REF, { players: defaultPlayers, targets: defaultTargets });
 }
 
+// 交互逻辑
+window.addPlayer = function () {
+    const name = document.getElementById('newPlayerName').value.trim();
+    if (!name) return showToast('请输入姓名');
+    players.push({ id: Date.now(), name, score: 0, visited: [] });
+    closeModal('addPlayerModal');
+    pushToCloud();
+    showToast(`已添加: ${name}`);
+};
+
+window.addTarget = function () {
+    const name = document.getElementById('newTargetName').value.trim();
+    const score = parseInt(document.getElementById('newTargetScore').value);
+    if (!name) return showToast('请输入名称');
+    targets.push({ id: Date.now(), name, score });
+    closeModal('addTargetModal');
+    pushToCloud();
+    showToast(`已添加目标: ${name}`);
+};
+
+window.confirmScore = function (tid) {
+    if (!isAdmin) return showToast("请先登录管理员");
+    const player = players.find(p => p.id === currentPlayerId);
+    const target = targets.find(t => t.id === tid);
+    if (player && target) {
+        if (player.visited && player.visited.includes(tid)) return;
+        if (!player.visited) player.visited = [];
+
+        player.score += target.score;
+        player.visited.push(tid);
+        closeModal('addScoreModal');
+        pushToCloud();
+        showToast("打卡成功！");
+    }
+};
+
+window.resetGame = function () {
+    if (confirm('确定要清空所有数据吗？')) {
+        players = [];
+        targets = [];
+        pushToCloud();
+        showToast('数据已重置');
+    }
+};
+
+window.adminLogin = function () {
+    const pwd = prompt("请输入管理员密码：");
+    if (pwd === "666") {
+        isAdmin = true;
+        document.getElementById('adminControls').style.display = 'block';
+        document.getElementById('guestMessage').style.display = 'none';
+        document.getElementById('adminLoginBtn').style.display = 'none';
+        showToast("管理员模式已开启");
+        renderAll();
+    } else {
+        alert("密码错误");
+    }
+};
+
+// 渲染与辅助函数
 function renderAll() {
     renderLeaderboard();
     renderSidebarTargets();
 }
 
-// Render Leaderboard
-function renderLeaderboard() {
+window.renderLeaderboard = function () {
     const list = document.getElementById('leaderboardList');
-    const searchFixed = document.getElementById('searchInput').value.trim().toLowerCase();
-
+    const searchVal = document.getElementById('searchInput').value.trim().toLowerCase();
     list.innerHTML = '';
 
-    // Filter
     let displayPlayers = players;
-    if (searchFixed) {
-        displayPlayers = players.filter(p => p.name.toLowerCase().includes(searchFixed));
-    }
+    if (searchVal) displayPlayers = players.filter(p => p.name.toLowerCase().includes(searchVal));
 
-    // Sort: Score DESC, then Name ASC
-    const sortedPlayers = [...displayPlayers].sort((a, b) => {
-        if (b.score !== a.score) return b.score - a.score;
-        return a.name.localeCompare(b.name);
-    });
+    const sorted = [...displayPlayers].sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
 
-    sortedPlayers.forEach((p, index) => {
+    sorted.forEach((p, index) => {
         const row = document.createElement('div');
         row.className = 'player-row';
-        // Add minimal delay for animation stagger
-        row.style.animationDelay = `${index * 0.05}s`;
+        const btnHtml = isAdmin ? `
+            <button class="action-btn" onclick="openScoreModal(${p.id})">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            </button>` : '';
 
         row.innerHTML = `
             <div class="player-rank">#${index + 1}</div>
             <div class="player-name">${escapeHtml(p.name)}</div>
             <div class="player-score">${p.score}</div>
-            <div style="display: flex; justify-content: center;">
-                <button class="action-btn" onclick="openScoreModal(${p.id})" title="打卡">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                </button>
-            </div>
+            <div style="display: flex; justify-content: center;">${btnHtml}</div>
         `;
         list.appendChild(row);
     });
-}
+};
 
-// Render Sidebar Target List
 function renderSidebarTargets() {
-    const container = document.getElementById('targetListPreview');
-    if (targets.length === 0) {
-        container.innerHTML = '<p>暂无目标，请添加</p>';
-        return;
-    }
-
-    container.innerHTML = targets.map(t => `
+    const div = document.getElementById('targetListPreview');
+    if (!targets.length) { div.innerHTML = '<p>暂无目标</p>'; return; }
+    div.innerHTML = targets.map(t => `
         <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05)">
-            <span>${escapeHtml(t.name)}</span>
-            <span style="color: var(--accent-color); font-weight: bold;">${t.score}分</span>
-        </div>
-    `).join('');
+            <span>${escapeHtml(t.name)}</span><span style="color:#38bdf8;font-weight:bold;">${t.score}分</span>
+        </div>`).join('');
 }
 
-// Actions
-function addPlayer() {
-    const input = document.getElementById('newPlayerName');
-    const name = input.value.trim();
-    if (!name) return showToast('请输入姓名');
+// Utils
+window.openModal = (id) => document.getElementById(id).classList.add('active');
+window.closeModal = (id) => document.getElementById(id).classList.remove('active');
+window.showToast = (msg) => {
+    const el = document.getElementById('toast');
+    el.innerText = msg; el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 3000);
+};
+function escapeHtml(text) { return document.createElement('div').appendChild(document.createTextNode(text)).parentNode.innerHTML; }
 
-    players.push({
-        id: Date.now(),
-        name: name,
-        score: 0,
-        visited: []
-    });
-
-    input.value = '';
-    closeModal('addPlayerModal');
-    saveData();
-    showToast(`已添加参与者: ${name}`);
-}
-
-function addTarget() {
-    const nameInput = document.getElementById('newTargetName');
-    const scoreInput = document.getElementById('newTargetScore');
-
-    const name = nameInput.value.trim();
-    const score = parseInt(scoreInput.value);
-
-    if (!name) return showToast('请输入目标名称');
-    if (!score || score < 1) return showToast('请输入有效的分数');
-
-    targets.push({
-        id: Date.now(),
-        name: name,
-        score: score
-    });
-
-    nameInput.value = '';
-    scoreInput.value = '1';
-    closeModal('addTargetModal');
-    saveData();
-    showToast(`已添加目标: ${name}`);
-}
-
-let currentPlayerId = null;
-
-function openScoreModal(pid) {
+window.openScoreModal = function (pid) {
+    if (!isAdmin) return;
     currentPlayerId = pid;
     const player = players.find(p => p.id === pid);
     if (!player) return;
-
     document.getElementById('currentScoringPlayer').innerText = `正在为 [${player.name}] 打卡`;
-
     const grid = document.getElementById('scoreTargetList');
     grid.innerHTML = '';
-
-    if (targets.length === 0) {
-        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-secondary);">暂无目标可打卡</p>';
-    }
-
     targets.forEach(t => {
-        const isVisited = player.visited.includes(t.id);
+        const isVisited = player.visited && player.visited.includes(t.id);
         const btn = document.createElement('div');
         btn.className = `target-chip ${isVisited ? 'selected' : ''}`;
         if (isVisited) {
-            btn.style.opacity = '0.5';
-            btn.style.cursor = 'not-allowed';
+            btn.style.opacity = '0.5'; btn.style.cursor = 'not-allowed';
             btn.innerHTML = `${t.name} <div class="target-points">已完成</div>`;
         } else {
             btn.onclick = () => confirmScore(t.id);
@@ -181,62 +203,8 @@ function openScoreModal(pid) {
         }
         grid.appendChild(btn);
     });
-
     openModal('addScoreModal');
-}
+};
 
-function confirmScore(tid) {
-    const player = players.find(p => p.id === currentPlayerId);
-    const target = targets.find(t => t.id === tid);
-
-    if (player && target) {
-        if (player.visited.includes(tid)) return; // Double check
-
-        player.score += target.score;
-        player.visited.push(tid);
-
-        saveData();
-        closeModal('addScoreModal');
-        showToast(`${player.name} 打卡成功！+${target.score}分`);
-    }
-}
-
-function resetGame() {
-    if (confirm('确定要重置所有数据吗？此操作不可恢复。')) {
-        players = [];
-        targets = [];
-        saveData();
-        showToast('数据已重置');
-    }
-}
-
-// Modal Utils
-function openModal(id) {
-    document.getElementById(id).classList.add('active');
-}
-
-function closeModal(id) {
-    document.getElementById(id).classList.remove('active');
-}
-
-// Toast
-function showToast(msg) {
-    const el = document.getElementById('toast');
-    el.innerText = msg;
-    el.classList.add('show');
-    setTimeout(() => el.classList.remove('show'), 3000);
-}
-
-// Security
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.innerText = text;
-    return div.innerHTML;
-}
-
-// Close modal on outside click
-window.onclick = function (event) {
-    if (event.target.classList.contains('modal-overlay')) {
-        event.target.classList.remove('active');
-    }
-}
+document.getElementById('searchInput').addEventListener('input', renderLeaderboard);
+renderAll();
