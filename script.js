@@ -118,6 +118,31 @@ window.resetGame = function () {
     }
 };
 
+window.restoreDefaults = function () {
+    if (!isAdmin) return showToast("请先登录管理员");
+    if (confirm('确定要恢复默认名单吗？\n注意：这将覆盖当前的玩家列表（但保留当前积分，如果ID匹配的话）。建议先清空再恢复。')) {
+        // Full list of default names
+        const names = [
+            "赖心怡", "矣润羲", "张瑶", "万诗琴", "李梓睿", "俞丽君", "甘宇强", "赵文彤", "曾嘉琪",
+            "王文洋", "邱荣毅", "杨许玮", "周之杰", "游英健", "陈诗棋", "马昀隆", "卢艺文", "李佳龙", "张科宇",
+            "蔡一民", "毛思涵", "蔡睿喆", "石祥鹏", "郑福祥", "莫天泽", "杨美铃", "陈可珍", "张润诚"
+        ];
+
+        // Re-create players (preserve existing scores if IDs match? No, simple restore implies resetting to these people)
+        // User asked to "Add names back". So we just append them or reset to them.
+        // Let's reset to them but keep scores 0.
+        players = names.map((name, index) => ({
+            id: Date.now() + index,
+            name: name,
+            score: 0,
+            visited: []
+        }));
+
+        pushToCloud();
+        showToast("默认名单已恢复");
+    }
+};
+
 window.adminLogin = function () {
     const pwd = prompt("请输入管理员密码：");
     if (pwd === "admin888") {
