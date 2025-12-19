@@ -216,10 +216,13 @@ h2 {
 .leaderboard-list {
     flex: 1;
     overflow-y: auto;
-    padding-right: 0.5rem;
+    padding: 0 1rem 1rem 1rem;
+    /* Increase horizontal padding */
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
+    margin: 0 -1rem;
+    /* Negative margin to pull scrollbar to edge */
 }
 
 /* Custom Scrollbar */
@@ -479,7 +482,11 @@ h2 {
 /* Mobile Optimization */
 @media (max-width: 768px) {
     .container {
-        padding: 10px;
+        flex-direction: column !important;
+        /* Force stack layout */
+        align-items: stretch;
+        /* Ensure full width children */
+        padding: 1rem;
         height: auto;
     }
 
