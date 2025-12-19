@@ -6,9 +6,12 @@ let targets = [];
 const STORAGE_KEY = 'team_building_app_v1';
 
 // Init
+// Init
 document.addEventListener('DOMContentLoaded', () => {
     loadData();
     renderAll();
+
+    document.getElementById('searchInput').addEventListener('input', renderLeaderboard);
 });
 
 function loadData() {
@@ -52,10 +55,18 @@ function renderAll() {
 // Render Leaderboard
 function renderLeaderboard() {
     const list = document.getElementById('leaderboardList');
+    const searchFixed = document.getElementById('searchInput').value.trim().toLowerCase();
+
     list.innerHTML = '';
 
+    // Filter
+    let displayPlayers = players;
+    if (searchFixed) {
+        displayPlayers = players.filter(p => p.name.toLowerCase().includes(searchFixed));
+    }
+
     // Sort: Score DESC, then Name ASC
-    const sortedPlayers = [...players].sort((a, b) => {
+    const sortedPlayers = [...displayPlayers].sort((a, b) => {
         if (b.score !== a.score) return b.score - a.score;
         return a.name.localeCompare(b.name);
     });
