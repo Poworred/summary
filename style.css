@@ -216,13 +216,10 @@ h2 {
 .leaderboard-list {
     flex: 1;
     overflow-y: auto;
-    padding: 0 1rem 1rem 1rem;
-    /* Increase horizontal padding */
+    padding-right: 0.5rem;
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
-    margin: 0 -1rem;
-    /* Negative margin to pull scrollbar to edge */
 }
 
 /* Custom Scrollbar */
@@ -482,12 +479,15 @@ h2 {
 /* Mobile Optimization */
 @media (max-width: 768px) {
     .container {
-        flex-direction: column !important;
-        /* Force stack layout */
-        align-items: stretch;
-        /* Ensure full width children */
-        padding: 1rem;
+        flex-direction: column;
+        /* RESTORED: Top-down layout on mobile */
+        padding: 10px;
         height: auto;
+    }
+
+    /* Disable scale effect on mobile to prevent clipping/overflow issues */
+    .player-row:hover {
+        transform: none !important;
     }
 
     .controls-panel,
