@@ -30,7 +30,7 @@
 }
 
 body {
-    background: url('homer.jpeg') no-repeat center center fixed;
+    background: url('homer.png') no-repeat center center fixed;
     background-size: cover;
     color: var(--text-primary);
     font-family: var(--font-family);
