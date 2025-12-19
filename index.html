@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>团建积分榜</title>
-    <link rel="stylesheet" href="style.css?v=5.0">
+    <link rel="stylesheet" href="style.css?v=5.1">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 
@@ -50,9 +50,6 @@
                 </button>
             </div>
 
-            <button id="adminLoginBtn" class="btn btn-secondary" onclick="adminLogin()" style="margin-top: 1rem;">
-                🔑 管理员登录
-            </button>
         </aside>
 
         <!-- Main Leaderboard -->
@@ -71,6 +68,14 @@
                 <!-- Rows populated by JS -->
             </div>
         </main>
+    </div>
+
+    <!-- Discrete Admin Login at Footer -->
+    <div style="text-align: center; padding: 20px; opacity: 0.3;">
+        <button id="adminLoginBtn" onclick="adminLogin()"
+            style="background: none; border: none; color: black; cursor: pointer; font-size: 14px;">
+            🔒 管理员登录
+        </button>
     </div>
 
     <!-- Modals -->
@@ -129,7 +134,7 @@
     <div id="toast" class="toast">操作成功</div>
 
     <!-- Main Logic -->
-    <script type="module" src="script.js?v=5.0"></script>
+    <script type="module" src="script.js?v=5.1"></script>
 </body>
 
 </html>

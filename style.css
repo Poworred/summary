@@ -1,10 +1,12 @@
 :root {
-    --bg-overlay: rgba(245, 245, 247, 0.65);
+    --bg-overlay: rgba(245, 245, 247, 0.3);
+    /* More transparent (was 0.65) */
     /* Light gray overlay */
 
     /* Apple Light Mode Base */
-    --card-bg: rgba(255, 255, 255, 0.65);
-    --card-border: rgba(255, 255, 255, 0.8);
+    --card-bg: rgba(255, 255, 255, 0.45);
+    /* More transparent (was 0.65) */
+    --card-border: rgba(255, 255, 255, 0.6);
 
     --text-primary: #1d1d1f;
     /* Apple almost black */
